@@ -1,0 +1,13 @@
+node_modules/
+.env
+.DS_Store
+*.log
+data/
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+frontend/build/
+dist/
+coverage/
+.vscode/
+.idea/
