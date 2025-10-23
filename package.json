@@ -1,0 +1,40 @@
+{
+  "name": "emailpay",
+  "version": "1.0.0",
+  "description": "Email-Native PYUSD Wallet using PKP wallets",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "nodemon --ignore data/ backend/index.js",
+    "dev:frontend": "cd frontend && npm run dev",
+    "start": "node backend/index.js",
+    "test": "jest",
+    "build:frontend": "cd frontend && npm run build"
+  },
+  "keywords": [
+    "pyusd",
+    "pkp",
+    "wallet",
+    "email",
+    "lit-protocol"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@lit-protocol/lit-node-client": "^3.0.0",
+    "@lit-protocol/pkp-ethers": "^3.0.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.9.0",
+    "express": "^4.18.2",
+    "googleapis": "^128.0.0",
+    "nodemailer": "^6.9.7",
+    "uuid": "^9.0.1",
+    "cors": "^2.8.5",
+    "body-parser": "^1.20.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "concurrently": "^8.2.2",
+    "jest": "^29.7.0"
+  }
+}
