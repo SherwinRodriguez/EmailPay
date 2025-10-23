@@ -21,14 +21,17 @@
 ## 💸 Send Transaction via Email
 
 ### Command Format
+
 ```
 SEND <amount> PYUSD TO <recipient@email.com>
 ```
 
 ### Example Email
+
 **To:** emailpay.demotest@gmail.com  
 **Subject:** (anything)  
 **Body:**
+
 ```
 SEND 10 PYUSD TO recipient@example.com
 ```
@@ -38,6 +41,7 @@ SEND 10 PYUSD TO recipient@example.com
 ## 🔄 What Happens Behind the Scenes
 
 ### Scenario 1: Both users have verified wallets
+
 1. Gmail poller detects new email
 2. System parses command: `SEND 10 PYUSD TO recipient@example.com`
 3. Validates sender wallet is verified ✅
@@ -48,6 +52,7 @@ SEND 10 PYUSD TO recipient@example.com
 8. Sends confirmation emails to both parties
 
 ### Scenario 2: Recipient doesn't have a wallet yet
+
 1. Gmail poller detects new email
 2. System parses command
 3. Validates sender wallet is verified ✅
@@ -63,6 +68,7 @@ SEND 10 PYUSD TO recipient@example.com
 ## 🏗️ Current System Components
 
 ### Working ✅
+
 - **Wallet Creation**: Users can create wallets via web UI
 - **Wallet Verification**: OTP verification via email
 - **Gmail Polling**: Actively monitoring inbox every 30 seconds
@@ -73,6 +79,7 @@ SEND 10 PYUSD TO recipient@example.com
 - **Database**: Storing users, transactions, and processed emails
 
 ### Demo Mode ⚠️
+
 - **Lit Protocol**: Not connected (using mock PKP wallets)
 - **Blockchain Broadcasting**: Using demo mode (not actually sending to chain)
 
@@ -83,14 +90,17 @@ SEND 10 PYUSD TO recipient@example.com
 ### Step 1: Create Two Wallets
 
 **Sender:**
+
 ```bash
 curl -X POST http://localhost:3001/api/wallet/create \
   -H "Content-Type: application/json" \
   -d '{"email":"sender@test.com"}'
 ```
+
 Note the OTP code from terminal output.
 
 **Verify sender:**
+
 ```bash
 curl -X POST http://localhost:3001/api/wallet/verify \
   -H "Content-Type: application/json" \
@@ -98,6 +108,7 @@ curl -X POST http://localhost:3001/api/wallet/verify \
 ```
 
 **Recipient:**
+
 ```bash
 curl -X POST http://localhost:3001/api/wallet/create \
   -H "Content-Type: application/json" \
@@ -107,6 +118,7 @@ curl -X POST http://localhost:3001/api/wallet/create \
 ### Step 2: Send Transaction via Email
 
 **Option A: Manually send email**
+
 - Open your Gmail
 - Send email to: `emailpay.demotest@gmail.com`
 - From: `sender@test.com` (or your verified email)
@@ -114,6 +126,7 @@ curl -X POST http://localhost:3001/api/wallet/create \
 
 **Option B: Simulate (for testing)**
 The system will:
+
 1. Poll Gmail every 30 seconds
 2. Detect your email
 3. Parse the command
@@ -121,7 +134,9 @@ The system will:
 5. Send notifications
 
 ### Step 3: Monitor Backend Logs
+
 Watch the terminal running `node backend/index.js` to see:
+
 - Email detection
 - Command parsing
 - Transaction processing
@@ -178,12 +193,13 @@ Watch the terminal running `node backend/index.js` to see:
 ## 🚀 Next Steps to Test
 
 1. **Verify your personal email:**
+
    ```bash
    # Create wallet for your email
    curl -X POST http://localhost:3001/api/wallet/create \
      -H "Content-Type: application/json" \
      -d '{"email":"your-email@gmail.com"}'
-   
+
    # Check your email for OTP
    # Then verify:
    curl -X POST http://localhost:3001/api/wallet/verify \
@@ -192,6 +208,7 @@ Watch the terminal running `node backend/index.js` to see:
    ```
 
 2. **Send a test transaction:**
+
    - Email to: `emailpay.demotest@gmail.com`
    - From: Your verified email
    - Body: `SEND 5 PYUSD TO friend@example.com`
@@ -203,6 +220,7 @@ Watch the terminal running `node backend/index.js` to see:
 ## 📝 Transaction Command Examples
 
 **Valid commands:**
+
 ```
 SEND 10 PYUSD TO alice@gmail.com
 SEND 25.5 PYUSD TO bob@example.com
@@ -210,6 +228,7 @@ SEND 0.1 PYUSD TO charlie@test.com
 ```
 
 **Invalid commands (will be rejected):**
+
 ```
 Send 10 pyusd to alice@gmail.com  ❌ (must be uppercase SEND)
 SEND 10 to alice@gmail.com        ❌ (missing PYUSD)

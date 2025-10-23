@@ -19,74 +19,82 @@ Added a smart feature that **detects test emails** and includes the OTP in the A
 #### 1. Backend (`backend/index.js`)
 
 **Wallet Creation Endpoint:**
+
 ```javascript
 // For development: include OTP in response if not a real email domain
-const isDevelopment = process.env.NODE_ENV !== 'production';
-const isTestEmail = email.includes('example.com') || email.includes('test.com');
+const isDevelopment = process.env.NODE_ENV !== "production";
+const isTestEmail = email.includes("example.com") || email.includes("test.com");
 
 const response = {
   success: true,
   email: wallet.email,
   address: wallet.address,
-  message: 'Wallet created. Please check your email for verification code.'
+  message: "Wallet created. Please check your email for verification code.",
 };
 
 // Include OTP for development/testing with non-real emails
 if (isDevelopment && isTestEmail) {
   response.otpCode = wallet.otpCode;
-  response.devNote = 'OTP included for development (test email detected)';
+  response.devNote = "OTP included for development (test email detected)";
 }
 ```
 
 **Resend OTP Endpoint:**
+
 ```javascript
 // Similar logic for resend OTP endpoint
 if (isDevelopment && isTestEmail) {
   response.otpCode = newOtpCode;
-  response.devNote = 'OTP included for development (test email detected)';
+  response.devNote = "OTP included for development (test email detected)";
 }
 ```
 
 #### 2. Frontend (`frontend/app/page.tsx`)
 
 **Wallet Creation Success Display:**
+
 ```tsx
-{showDevOtp && otpCode && (
-  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-    <p className="text-sm font-semibold text-yellow-800 mb-2">
-      🔧 Development Mode - Test Email Detected
-    </p>
-    <p className="text-xs text-yellow-700 mb-2">
-      Your verification code (since this is a test email):
-    </p>
-    <p className="text-2xl font-mono font-bold text-yellow-900 tracking-wider">
-      {otpCode}
-    </p>
-  </div>
-)}
+{
+  showDevOtp && otpCode && (
+    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+      <p className="text-sm font-semibold text-yellow-800 mb-2">
+        🔧 Development Mode - Test Email Detected
+      </p>
+      <p className="text-xs text-yellow-700 mb-2">
+        Your verification code (since this is a test email):
+      </p>
+      <p className="text-2xl font-mono font-bold text-yellow-900 tracking-wider">
+        {otpCode}
+      </p>
+    </div>
+  );
+}
 ```
 
 #### 3. Frontend (`frontend/app/verify/page.tsx`)
 
 **OTP Input with Dev Display:**
+
 ```tsx
-{showDevOtp && devOtpCode && (
-  <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-    <p className="text-xs font-semibold text-yellow-800 mb-1">
-      🔧 Development Mode
-    </p>
-    <p className="text-xs text-yellow-700 mb-1">
-      Your code: <span className="font-mono font-bold">{devOtpCode}</span>
-    </p>
-    <button
-      type="button"
-      onClick={() => setOtpCode(devOtpCode)}
-      className="text-xs text-yellow-800 hover:text-yellow-900 underline"
-    >
-      Click to auto-fill
-    </button>
-  </div>
-)}
+{
+  showDevOtp && devOtpCode && (
+    <div className="mt-3 bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+      <p className="text-xs font-semibold text-yellow-800 mb-1">
+        🔧 Development Mode
+      </p>
+      <p className="text-xs text-yellow-700 mb-1">
+        Your code: <span className="font-mono font-bold">{devOtpCode}</span>
+      </p>
+      <button
+        type="button"
+        onClick={() => setOtpCode(devOtpCode)}
+        className="text-xs text-yellow-800 hover:text-yellow-900 underline"
+      >
+        Click to auto-fill
+      </button>
+    </div>
+  );
+}
 ```
 
 ## How It Works Now
@@ -111,6 +119,7 @@ if (isDevelopment && isTestEmail) {
 ## Testing
 
 ### Test with Example Email
+
 ```bash
 curl -X POST http://localhost:3001/api/wallet/create \
   -H "Content-Type: application/json" \
@@ -118,6 +127,7 @@ curl -X POST http://localhost:3001/api/wallet/create \
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -130,6 +140,7 @@ curl -X POST http://localhost:3001/api/wallet/create \
 ```
 
 ### Test with Real Email
+
 ```bash
 curl -X POST http://localhost:3001/api/wallet/create \
   -H "Content-Type: application/json" \
@@ -137,6 +148,7 @@ curl -X POST http://localhost:3001/api/wallet/create \
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -145,21 +157,22 @@ curl -X POST http://localhost:3001/api/wallet/create \
   "message": "Wallet created. Please check your email for verification code."
 }
 ```
-*(No OTP in response - user must check their Gmail)*
+
+_(No OTP in response - user must check their Gmail)_
 
 ## Security Notes
 
 ✅ **Production Safe**: OTP only shown for test emails in development mode  
 ✅ **Real Emails Protected**: No OTP exposed for actual email addresses  
 ✅ **Environment Aware**: Checks `NODE_ENV` before exposing sensitive data  
-✅ **Visual Indicator**: Yellow dev banner clearly shows it's development mode  
+✅ **Visual Indicator**: Yellow dev banner clearly shows it's development mode
 
 ## Current Status
 
 ✅ **Backend Updated**: Both create and resend endpoints include OTP for test emails  
 ✅ **Frontend Updated**: Home page and verify page display dev OTP  
 ✅ **User Experience**: Smooth testing flow with test emails  
-✅ **Production Ready**: No security issues with real email addresses  
+✅ **Production Ready**: No security issues with real email addresses
 
 ## Example Flow
 

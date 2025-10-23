@@ -1,0 +1,53 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install backend dependencies
+      run: npm ci
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+        cd ..
+    
+    - name: Run backend tests
+      run: npm test
+    
+    - name: Run backend linter
+      run: npm run lint --if-present
+    
+    - name: Build frontend
+      run: |
+        cd frontend
+        npm run build
+        cd ..
+    
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      if: matrix.node-version == '18.x'
+      with:
+        files: ./coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
