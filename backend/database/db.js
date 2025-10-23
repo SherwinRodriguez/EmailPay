@@ -1,6 +1,6 @@
-const fs = require('fs').promises;
-const path = require('path');
-const config = require('../config');
+const fs = require("fs").promises;
+const path = require("path");
+const config = require("../config");
 
 class Database {
   constructor() {
@@ -12,9 +12,9 @@ class Database {
     try {
       const dir = path.dirname(this.dbPath);
       await fs.mkdir(dir, { recursive: true });
-      
+
       try {
-        const content = await fs.readFile(this.dbPath, 'utf-8');
+        const content = await fs.readFile(this.dbPath, "utf-8");
         this.data = JSON.parse(content);
       } catch (err) {
         // Initialize empty database
@@ -23,17 +23,17 @@ class Database {
           transactions: {},
           pendingTransactions: {},
           processedEmails: new Set(),
-          dailySpending: {}
+          dailySpending: {},
         };
         await this.save();
       }
-      
+
       // Convert processedEmails array to Set if needed
       if (Array.isArray(this.data.processedEmails)) {
         this.data.processedEmails = new Set(this.data.processedEmails);
       }
     } catch (err) {
-      console.error('Database initialization error:', err);
+      console.error("Database initialization error:", err);
       throw err;
     }
   }
@@ -41,7 +41,7 @@ class Database {
   async save() {
     const dataToSave = {
       ...this.data,
-      processedEmails: Array.from(this.data.processedEmails)
+      processedEmails: Array.from(this.data.processedEmails),
     };
     await fs.writeFile(this.dbPath, JSON.stringify(dataToSave, null, 2));
   }
@@ -54,7 +54,7 @@ class Database {
       pkpEthAddress,
       otpCode,
       verified: false,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     await this.save();
     return this.data.users[email];
@@ -63,7 +63,7 @@ class Database {
   async verifyUser(email, otpCode) {
     const user = this.data.users[email];
     if (!user) return false;
-    
+
     if (user.otpCode === otpCode) {
       user.verified = true;
       user.verifiedAt = new Date().toISOString();
@@ -80,7 +80,7 @@ class Database {
   async updateUserOtp(email, newOtpCode) {
     const user = this.data.users[email];
     if (!user) return false;
-    
+
     user.otpCode = newOtpCode;
     await this.save();
     return true;
@@ -88,7 +88,7 @@ class Database {
 
   async updateUserPKP(email, pkpPublicKey, pkpEthAddress) {
     const user = this.data.users[email];
-    if (!user) throw new Error('User not found');
+    if (!user) throw new Error("User not found");
     user.pkpPublicKey = pkpPublicKey;
     user.pkpEthAddress = pkpEthAddress;
     await this.save();
@@ -108,7 +108,7 @@ class Database {
   async createTransaction(txId, txData) {
     this.data.transactions[txId] = {
       ...txData,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
     };
     await this.save();
     return this.data.transactions[txId];
@@ -122,7 +122,9 @@ class Database {
     this.data.pendingTransactions[txId] = {
       ...txData,
       createdAt: new Date().toISOString(),
-      expiresAt: new Date(Date.now() + config.policies.txExpiryMinutes * 60000).toISOString()
+      expiresAt: new Date(
+        Date.now() + config.policies.txExpiryMinutes * 60000
+      ).toISOString(),
     };
     await this.save();
     return this.data.pendingTransactions[txId];
@@ -134,7 +136,9 @@ class Database {
 
   async getPendingTransactionsForRecipient(recipientEmail) {
     return Object.entries(this.data.pendingTransactions)
-      .filter(([_, tx]) => tx.recipientEmail === recipientEmail && !tx.completed)
+      .filter(
+        ([_, tx]) => tx.recipientEmail === recipientEmail && !tx.completed
+      )
       .map(([id, tx]) => ({ id, ...tx }));
   }
 
@@ -161,12 +165,21 @@ class Database {
   }
 
   // Daily Spending Tracking
-  async getDailySpending(email, asset = 'PYUSD', date = new Date().toISOString().split('T')[0]) {
+  async getDailySpending(
+    email,
+    asset = "PYUSD",
+    date = new Date().toISOString().split("T")[0]
+  ) {
     const key = `${email}:${asset}:${date}`;
     return this.data.dailySpending[key] || 0;
   }
 
-  async addDailySpending(email, amount, asset = 'PYUSD', date = new Date().toISOString().split('T')[0]) {
+  async addDailySpending(
+    email,
+    amount,
+    asset = "PYUSD",
+    date = new Date().toISOString().split("T")[0]
+  ) {
     const key = `${email}:${asset}:${date}`;
     this.data.dailySpending[key] = (this.data.dailySpending[key] || 0) + amount;
     await this.save();
@@ -177,14 +190,14 @@ class Database {
   async cleanupExpiredTransactions() {
     const now = new Date();
     let cleaned = 0;
-    
+
     for (const [txId, tx] of Object.entries(this.data.pendingTransactions)) {
       if (new Date(tx.expiresAt) < now && !tx.completed) {
         delete this.data.pendingTransactions[txId];
         cleaned++;
       }
     }
-    
+
     if (cleaned > 0) {
       await this.save();
       console.log(`Cleaned up ${cleaned} expired pending transactions`);
